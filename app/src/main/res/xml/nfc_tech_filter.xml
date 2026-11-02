@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ACTION_TECH_DISCOVERED で受け取るタグ技術。tech-list は OR で評価され、
+  1 つの tech-list の中は AND。単独で並べているので、どれか 1 つでも持つタグに反応する。
+  NfcF は FeliCa（Suica など）。
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <tech-list><tech>android.nfc.tech.NfcF</tech></tech-list>
+    <tech-list><tech>android.nfc.tech.NfcA</tech></tech-list>
+    <tech-list><tech>android.nfc.tech.NfcB</tech></tech-list>
+    <tech-list><tech>android.nfc.tech.NfcV</tech></tech-list>
+    <tech-list><tech>android.nfc.tech.IsoDep</tech></tech-list>
+    <tech-list><tech>android.nfc.tech.Ndef</tech></tech-list>
+    <tech-list><tech>android.nfc.tech.NdefFormatable</tech></tech-list>
+</resources>

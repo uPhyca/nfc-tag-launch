@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
+
+    <application
+        android:name=".NfcTagLaunchApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.NfcTagLaunch">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.NfcTagLaunch">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              ブラウザや他アプリからのディープリンク。誰からでも開けるよう権限では守らない。
+              Android 16 以降、http/https を書いた NFC タグはこちら（ACTION_VIEW）に来る。
+              Android 12 以降は App Links の検証（assetlinks.json）が通っていないとブラウザに取られる。
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="uphyca.github.io"
+                    android:pathPrefix="/nfc-tag-launch" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="nfctaglaunch" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          NFC タグからの起動専用の入口。
+          Android 17 では、targetSdk 37 以上のアプリは DISPATCH_NFC_MESSAGE で保護された
+          Activity にしかタグのインテントが配送されない。この権限は NFC スタックだけが持つ
+          signature|privileged 権限なので、他アプリからこの入口は開けない。
+          ディープリンク用の Activity に直接付けるとブラウザから開けなくなるため、alias に分離している。
+          有効/無効は setComponentEnabledSetting で切り替える。
+        -->
+        <activity-alias
+            android:name=".NfcLaunchActivity"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="true"
+            android:permission="android.permission.DISPATCH_NFC_MESSAGE">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="nfctaglaunch" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="https"
+                    android:host="uphyca.github.io"
+                    android:pathPrefix="/nfc-tag-launch" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+        </activity-alias>
+
+        <!-- 比較用: 権限で守っていない入口。Android 17 で配送されないことを確かめる。既定は無効。 -->
+        <activity-alias
+            android:name=".NfcLaunchUnprotectedActivity"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="nfctaglaunch" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+        </activity-alias>
+    </application>
+
+</manifest>
